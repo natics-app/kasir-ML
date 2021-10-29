@@ -10,14 +10,14 @@ def scrapeData():
     else:
         print("Failed")
 
-# if __name__ == "__main__":
-#     start = time.time()
-#     scrapeData()
-#     end = time.time()
+if __name__ == "__main__":
+    start = time.time()
+    scrapeData()
+    end = time.time()
 
-#     print("Execution Time:", end-start)
+    print("Execution Time:", end-start)
 
-wordExtraction = WordExtraction("./resources/preProcessing_result")
-newData = wordExtraction.run()
-newData.head()
-newData.to_csv("testing.csv")
+# wordExtraction = WordExtraction("./resources/preProcessing_result")
+# newData = wordExtraction.run()
+# newData.head()
+# newData.to_csv("testing.csv")
