@@ -1,19 +1,21 @@
 from IPython.display import display
 import pandas as pd
 from spacy.lang.id import Indonesian
-get_ipython().system('pip install spacy python-crfsuite unidecode textblob sastrawi')
+# get_ipython().system('pip install spacy python-crfsuite unidecode textblob sastrawi')
 import nltk
-nltk.download('popular')
+from nltk.corpus import stopwords
 from nltk.tag import CRFTagger
 import re
 import pandas as pd
-from nltk.corpus import stopwords
 import copy
 import csv
 import re
-import WordExtractor
-import CSVLoader
-nltk.download('popular')
+import wordExtraction
+from wordExtraction.wordExtractor import *
+from wordExtraction.csvLoader import *
+
+# nltk.download('stopwords')
+# nltk.download('popular')
 
 class WordExtraction():
     def __init__(self, dataSet):
@@ -21,14 +23,13 @@ class WordExtraction():
 
     def run(self):
         nlp_id = Indonesian()
-        stop = set(stopwords.words('indonesian'))
+        # stop = set(stopwords.words('indonesian'))
+        stop = []
         df = pd.read_csv(f'{self.dataSet}.csv')
 
-        provinsi_dictionary = CSVLoader("listProvinsi.csv").getCSVArray()
-        kabupaten_dictionary = CSVLoader("newlistKabupaten.csv").getCSVArray()
-        animal_dictionary = CSVLoader("Animal_Dictionary.csv").getCSVArray()
-
-        df = pd.read_csv('data.csv')
+        provinsi_dictionary = CSVLoader("./resources/listProvinsi.csv").getCSVArray()
+        kabupaten_dictionary = CSVLoader("./resources/newlistKabupaten.csv").getCSVArray()
+        animal_dictionary = CSVLoader("./resources/Animal_Dictionary.csv").getCSVArray()
 
         selected_columns = df[['textContent']]
         processed_df = selected_columns.copy()
@@ -54,9 +55,9 @@ class WordExtraction():
         get_kabupaten = extractedKabupaten_df["kabupaten"]
         get_date = extractedDate_df["date"]
 
-        df_news = df_news.join(get_animal)
-        df_news = df_news.join(get_prov)
-        df_news = df_news.join(get_kabupaten)
-        df_news = df_news.join(get_date)
+        df["hewan"] = get_animal
+        df["provinsi"] = get_prov
+        df["kabupaten"] = get_kabupaten
+        df["date"] = get_date
 
-        return df_news
+        return df
