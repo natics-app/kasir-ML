@@ -16,25 +16,26 @@ let driver = new Builder()
 let newsLink = [];
 let articles = [];
 
-async function parse(url, index, trial) {
-    process.stdout.write(`Processing [${index+1}/${newsLink.length}]: ${url}`);
+async function parse(news, index, trial) {
+    process.stdout.write(`Processing [${index+1}/${newsLink.length}]: ${news.url}`);
 
     try {
         let virtualConsole = new jsdom.VirtualConsole();
-        let doc = await JSDOM.fromURL(url, { virtualConsole });
+        let doc = await JSDOM.fromURL(news.url, { virtualConsole });
 
         const reader = new Readability(doc.window.document);
         let article = reader.parse();
-        article["url"] = url;
+        article["url"] = news.url;
+        article["date"] = news.date;
         articles.push(article);
 
-        process.stdout.write(`\rProcessed [${index+1}/${newsLink.length}]: ${url} ✅\n`);
+        process.stdout.write(`\rProcessed [${index+1}/${newsLink.length}]: ${news.url} ✅\n`);
     } catch(e) {
-        // process.stdout.write(`\rFailed to process [${trial}] ${url} ❌\n`);
+        // process.stdout.write(`\rFailed to process [${trial}] ${news.url} ❌\n`);
         process.stdout.write(`\n(${trial}) ${e.toString()}\n`);
         
         if (trial < 3) {
-            await parse(url, index, trial + 1);
+            await parse(news, index, trial + 1);
         }
     }
 }
@@ -56,7 +57,12 @@ async function crawler(index, searchString) {
 
         for (let berita of news) {
             let link = await berita.getAttribute("href");
-            newsLink.push(link);
+            let tanggal = await berita.findElement(By.css('p.S1FAPd.OSrXXb.ecEXdc span')).getText();
+
+            newsLink.push({
+                "url": link,
+                "date": tanggal
+            });
             console.log(link);
         }
     } catch {
