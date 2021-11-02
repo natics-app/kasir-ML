@@ -56,5 +56,5 @@ headers = {'Accept': 'application/json'}
 baseUrl = "https://kasir.farrelanshary.me"
 endpoint = baseUrl + "/api/general/news"
 
-req = requests.post(url = endpoint, data = payload, headers=headers)
+req = requests.post(url = endpoint, headers=headers, json= payload)
 print(req.text)
