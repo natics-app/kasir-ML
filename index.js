@@ -71,16 +71,16 @@ async function crawler(index, searchString) {
 
         const news = await driver.findElements(By.css("#rso a"));
 
-        for (const berita of news) {
-            const link = await berita.getAttribute("href");
-            const tanggal = await berita.findElement(By.css('p.S1FAPd.OSrXXb.ecEXdc span')).getText();
+        for (const singleNews of news) {
+            const link = await singleNews.getAttribute("href");
+            const tanggal = await singleNews.findElement(By.css('p.S1FAPd.OSrXXb.ecEXdc span')).getText();
 
             const existing = await checkUrl(link);
 
             if (!existing) {
                 newsLink.push({
                     "url": link,
-                    "date": tanggal
+                    "news_date": tanggal
                 });
                 console.log(link);
             }
