@@ -3,7 +3,7 @@ import time
 from wordExtraction.wordExtraction import *
 
 def scrapeData():
-    success = execute_js("index.js", arguments='--query "Penangkapan penyu"')
+    success = execute_js("index.js")
 
     if success:
         print("Done")
