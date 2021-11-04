@@ -40,6 +40,22 @@ async function parse(news, index, trial) {
     }
 }
 
+async function checkUrl(url) {
+    try {
+        const response = await axios.get('https://kasir.farrelanshary.me/api/general/check-url', {
+            params: {
+                api_key: "bukanUser",
+                url: url
+            }
+        });
+        return response.data.data.is_existing
+    }
+    catch (error) {
+        console.error(error);
+    }
+
+}
+
 async function crawler(index, searchString) {
     let params = {
         q: searchString,
@@ -53,17 +69,24 @@ async function crawler(index, searchString) {
     try {
         await driver.wait(until.elementLocated(By.id("rso")), 5000);
 
-        let news = await driver.findElements(By.css("#rso a"));
+        const news = await driver.findElements(By.css("#rso a"));
 
-        for (let berita of news) {
-            let link = await berita.getAttribute("href");
-            let tanggal = await berita.findElement(By.css('p.S1FAPd.OSrXXb.ecEXdc span')).getText();
+        for (const singleNews of news) {
+            const link = await singleNews.getAttribute("href");
+            const tanggal = await singleNews.findElement(By.css('p.S1FAPd.OSrXXb.ecEXdc span')).getText();
 
-            newsLink.push({
-                "url": link,
-                "date": tanggal
-            });
-            console.log(link);
+            const existing = await checkUrl(link);
+
+            if (!existing) {
+                newsLink.push({
+                    "url": link,
+                    "news_date": tanggal
+                });
+                console.log(link);
+            }
+            else {
+                console.log('Skipped ' + link);
+            }
         }
     } catch {
         console.log("Timed out or blocked by captcha");
@@ -74,16 +97,16 @@ async function crawler(index, searchString) {
 
 async function getKeywords() {
     try {
-      const response = await axios.get('https://kasir.farrelanshary.me/api/general/keywords', {
-          params: {
-            api_key: "bukanUser"
-          }
-      });
-      return response.data.data.keywords;
+        const response = await axios.get('https://kasir.farrelanshary.me/api/general/keywords', {
+            params: {
+                api_key: "bukanUser"
+            }
+        });
+        return response.data.data.keywords;
     } catch (error) {
-      console.error(error);
+        console.error(error);
     }
-  }
+}
 
 async function main() {
     let keywords = await getKeywords();
