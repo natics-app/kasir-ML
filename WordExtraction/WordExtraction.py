@@ -28,8 +28,39 @@ class WordExtraction():
         df = pd.read_csv(f'{self.dataSet}.csv')
 
         provinsi_dictionary = CSVLoader("./resources/listProvinsi.csv").getCSVArray()
-        kabupaten_dictionary = CSVLoader("./resources/newlistKabupaten.csv").getCSVArray()
-        animal_dictionary = CSVLoader("./resources/Animal_Dictionary.csv").getCSVArray()
+
+        df_kabupaten_dictionary = pd.read_csv("apiKabupaten.csv", sep = ";")
+        df_kabupaten_dictionary = df_kabupaten_dictionary.to_numpy()
+
+        df_kabupaten_array = []
+        for kabupaten in df_kabupaten_dictionary:
+            kabupaten_temporary = []
+            for kabupatenDetail in kabupaten:
+                kabupaten_temporary.append(kabupatenDetail)
+            df_kabupaten_array.append(kabupaten_temporary)
+
+        df_kabupaten_array
+
+
+        df_kabupaten_dictionary = pd.read_csv("apiKabupaten.csv", sep = ";")
+        df_kabupaten_dictionary = df_kabupaten_dictionary.to_numpy()
+
+        df_kabupaten_array = []
+        for kabupaten in df_kabupaten_dictionary:
+            kabupaten_temporary = []
+            for kabupatenDetail in kabupaten:
+                kabupaten_temporary.append(kabupatenDetail)
+            df_kabupaten_array.append(kabupaten_temporary)
+
+        df_animal_dictionary = pd.read_csv("Animal_CategoryLatina.csv", sep = ";")
+        df_animal_dictionary = df_animal_dictionary.to_numpy()
+
+        df_animal_array = []
+        for animal in df_animal_dictionary:
+            animal_temporary = []
+            for animalDetail in animal:
+                animal_temporary.append(animalDetail)
+            df_animal_array.append(animal_temporary)
 
         selected_columns = df[['textContent']]
         processed_df = selected_columns.copy()
@@ -46,18 +77,19 @@ class WordExtraction():
 
         extractedProvince_df = WordExtractor(processed_df, new_df, provinsi_dictionary, "provinsi").get_value()
         extractedDate_df = WordExtractor(processed_df, new_df, provinsi_dictionary, "date").get_date()
-        extractedAnimal_df = WordExtractor(processed_df, new_df, animal_dictionary, "hewan").get_value()
-        extractedKabupaten_df = WordExtractor(processed_df, new_df, kabupaten_dictionary, "kabupaten").get_value()
+        extractedAnimal_df = AnimalExtractor(processed_df,new_df, df_animal_array, "hewan").get_value()
+        extractedKabupaten_df = KabupatenExtractor(processed_df, new_df, df_kabupaten_dictionary, "kabupaten").get_value()
 
-        df_news = processed_df
         get_animal = extractedAnimal_df["hewan"]
-        get_prov = extractedProvince_df["provinsi"]
+        get_animalCategory = extractedAnimal_df["animalCategory"]
         get_kabupaten = extractedKabupaten_df["kabupaten"]
         get_date = extractedDate_df["date"]
+        get_prov = extractedProvince_df["provinsi"]
 
         df["hewan"] = get_animal
-        df["provinsi"] = get_prov
         df["kabupaten"] = get_kabupaten
         df["date"] = get_date
+        df["animalCategory"] = get_animalCategory
+        df["provinsi"] = get_prov
 
         return df
