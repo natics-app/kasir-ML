@@ -12,6 +12,8 @@ import csv
 import re
 import wordExtraction
 from wordExtraction.wordExtractor import *
+from wordExtraction.animalExtractor import *
+from wordExtraction.kabupatenExtractor import *
 from wordExtraction.csvLoader import *
 
 # nltk.download('stopwords')
