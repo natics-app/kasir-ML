@@ -9,16 +9,11 @@ class AnimalExtractor:
     def get_value(self):
         
         for index, row in self.df_source.iterrows():
-            location_index = 0
             sentence_index = 0
             tagging_index = 0
-
             allMatchedCorpus = []
-            allMatchedCategories = []
 
             finalMatchedCorpus = []
-            animalName_box = []
-            animalCategory_box = []
             text = self.df_source.iloc[row.name]['textContent_without_stopwords']
             sentence = text.split()
             news_index = row.name
@@ -28,7 +23,6 @@ class AnimalExtractor:
             
             for word in sentence:
                 matchedCorpus = []
-                matchedCategories = []
                 finalArray = []
                 lastTagger = ""
                 for location in self.value_dictionary:
@@ -42,17 +36,20 @@ class AnimalExtractor:
                         #Corpus word = ["penyu", "hijau"]
                         #sentence word = ["penyu", "hijau"] -> hijau is grabbed from the sentence not the corpus by checking
                         #how long is is the expected corpus sentence length
-                        for _ in range(len(location[0])-1):
-                            sentence_index += 1
-                            checking_arr.append(sentence[sentence_index])
-                        sentence_index -= (len(location[0])-1)
+                        if sentence_index+1 != len(sentence)-1:
+                            for _ in range(len(location[0])-1):
+                                sentence_index += 1
+                                checking_arr.append(sentence[sentence_index])
+                            sentence_index -= (len(location[0])-1)
 
-                        #combining the matched sentence/word inside the corpus
-                        if checking_arr == location[0]:
-                            if len(matchedCorpus) < len(checking_arr):
-                                matchedCorpus = copy.deepcopy(location[0])
-                                lastTagger = copy.deepcopy(location[1])
-                                tagging_index -= len(location[0]) - 1
+                            #combining the matched sentence/word inside the corpus
+                            if checking_arr == location[0]:
+                                if len(matchedCorpus) < len(checking_arr):
+                                    matchedCorpus = copy.deepcopy(location[0])
+                                    lastTagger = copy.deepcopy(location[1])
+                                    tagging_index -= len(location[0]) - 1
+                        
+                        
                 
                 if matchedCorpus:
                     joinedAnimalMatched = ' '.join(matchedCorpus)                          
@@ -68,7 +65,6 @@ class AnimalExtractor:
                 for matchedCorpusCheck in allMatchedCorpus:
                     if pointer == matchedCorpusCheck[1] and not matchedCorpus in finalMatchedCorpus:
                         finalMatchedCorpus.append(matchedCorpusCheck)
-            print(finalMatchedCorpus)
             
             for data in finalMatchedCorpus:
                 categoryExtracted.append(data[0])  

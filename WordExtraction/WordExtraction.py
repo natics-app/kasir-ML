@@ -41,19 +41,6 @@ class WordExtraction():
                 kabupaten_temporary.append(kabupatenDetail)
             df_kabupaten_array.append(kabupaten_temporary)
 
-        df_kabupaten_array
-
-
-        df_kabupaten_dictionary = pd.read_csv("apiKabupaten.csv", sep = ";")
-        df_kabupaten_dictionary = df_kabupaten_dictionary.to_numpy()
-
-        df_kabupaten_array = []
-        for kabupaten in df_kabupaten_dictionary:
-            kabupaten_temporary = []
-            for kabupatenDetail in kabupaten:
-                kabupaten_temporary.append(kabupatenDetail)
-            df_kabupaten_array.append(kabupaten_temporary)
-
         df_animal_dictionary = pd.read_csv("Animal_CategoryLatina.csv", sep = ";")
         df_animal_dictionary = df_animal_dictionary.to_numpy()
 
