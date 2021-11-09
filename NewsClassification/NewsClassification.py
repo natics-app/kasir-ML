@@ -5,6 +5,7 @@ import string
 import re
 import warnings
 import os
+import pickle
 # NLTK
 from nltk.tokenize import RegexpTokenizer
 # SKLEARN
@@ -58,11 +59,25 @@ class NewsClassification:
 
   def remove_stopwords(self, text):
     # stop_factory = df = pd.read_excel('list_stopword.xlsx')[0].tolist()
-    add_stopwords = ['\n']
-    # dictionary = ArrayDictionary(stop_factory + add_stopwords)
-    dictionary = ArrayDictionary(add_stopwords)
+    list_stopwords = []
+
+    for x in range(0,9):
+      if x == 3:
+        df = pd.read_csv("./stopwords/savedWords3.csv", sep=";")
+        df_list = df["words"].values.tolist()
+        list_stopwords = list_stopwords + df_list
+      else:
+        df = pd.read_csv(f"./stopwords/savedWords{x}.csv")
+        df_list = df["words"].values.tolist()
+        list_stopwords = list_stopwords + df_list
+
+    print(list_stopwords)
+
+    dictionary = ArrayDictionary(list_stopwords)
+
+    print(dictionary)
     str = StopWordRemover(dictionary)
-    text = [str.remove(x)for x in text]
+    text = [str.remove(x) for x in text]
     return text
 
   def clear(self, text):
@@ -77,7 +92,7 @@ class NewsClassification:
     dense = tfidf_mat.todense()
     denselist = dense.tolist()
     df_tfidf = pd.DataFrame(denselist, columns=feature_names)
-    df_tfidf.to_csv('macro/tfidf_result.csv',encoding='utf-8')
+    df_tfidf.to_csv('resources/tfidf_result.csv',encoding='utf-8')
 
     return df_tfidf
 
@@ -98,23 +113,23 @@ class NewsClassification:
     df['case_folding'] = df['cleansing'].apply(lambda x: self.caseFolding(x))
     # Tokenizing
     df['tokenize'] = df['case_folding'].apply(lambda x: self.tokenizer.tokenize(x))
-    # Stemming
-    df['stemmed'] = df['tokenize'].apply(lambda x: self.word_stemmer(x))
     # Stopwords
-    df['stopword'] = df['stemmed'].apply(lambda x: self.remove_stopwords(x))
+    df['stopword'] = df['tokenize'].apply(lambda x: self.remove_stopwords(x))
+    # Stemming
+    df['stemmed'] = df['stopword'].apply(lambda x: self.word_stemmer(x))
     # Hapus token kosong
-    df['clear'] = df['stopword'].apply(lambda x: self.clear(x))
-    print("Done PreProcessing")
-    df.to_csv('macro/preProcessing_result.csv',encoding='utf-8')
+    df['clear'] = df['stemmed'].apply(lambda x: self.clear(x))
+    print("DONE PREPROCESSING")
+    df.to_csv('./resources/preProcessing_result.csv',encoding='utf-8')
 
   def testPreProcess(self, start_column):
     self.news_data = self.run_preprocessing(self.news_data, start_column)
 
   def trainModel(self, label_column_string, textColumn):
-    self.run_preprocessing(self.news_data, textColumn)
-    df = pd.read_csv('macro/preProcessing_result.csv')
+    # self.run_preprocessing(self.news_data, textColumn)
+    df = pd.read_csv('resources/preProcessing_result.csv')
 
-    df_tfidf = self.termWeighting(df, "clear")
+    df_tfidf = self.termWeighting(df, textColumn)
     
     # membagi data menjadi data train dan data test dengan ukuran data tes 25% dari jumlah data
     X_train, X_test, y_train, y_test = train_test_split(df_tfidf, df[label_column_string], test_size=0.25, random_state=10)
@@ -162,3 +177,8 @@ class NewsClassification:
     new_df['label'] = predict_result
 
     self.predictData = new_df
+  
+  def saveModel(self):
+    self.svm_clf
+    pickle.dump(self.svm_clf, open("./resources/model.sav", 'wb'))
+
