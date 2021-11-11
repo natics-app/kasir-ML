@@ -11,10 +11,11 @@ import copy
 import csv
 import re
 import wordExtraction
-from wordExtraction.wordExtractor import *
-from wordExtraction.animalExtractor import *
-from wordExtraction.kabupatenExtractor import *
+from wordExtraction.WordExtractor import *
+from wordExtraction.AnimalExtractor import *
+from wordExtraction.KabupatenExtractor import *
 from wordExtraction.csvLoader import *
+import Constants as Constans
 
 # nltk.download('stopwords')
 # nltk.download('popular')
@@ -27,11 +28,11 @@ class WordExtraction():
         nlp_id = Indonesian()
         # stop = set(stopwords.words('indonesian'))
         stop = []
-        df = pd.read_csv(f'{self.dataSet}.csv')
+        df = pd.read_csv(f'{self.dataSet}')
 
-        provinsi_dictionary = CSVLoader("./resources/listProvinsi.csv").getCSVArray()
+        provinsi_dictionary = CSVLoader(Constans.IE_PROVINCE_LIST).getCSVArray()
 
-        df_kabupaten_dictionary = pd.read_csv("apiKabupaten.csv", sep = ";")
+        df_kabupaten_dictionary = pd.read_csv(Constans.IE_API_KABUPATEN, sep = ";")
         df_kabupaten_dictionary = df_kabupaten_dictionary.to_numpy()
 
         df_kabupaten_array = []
@@ -41,7 +42,7 @@ class WordExtraction():
                 kabupaten_temporary.append(kabupatenDetail)
             df_kabupaten_array.append(kabupaten_temporary)
 
-        df_animal_dictionary = pd.read_csv("Animal_CategoryLatina.csv", sep = ";")
+        df_animal_dictionary = pd.read_csv(Constans.IE_ANIMAL_CATEGORY_LATINA, sep = ";")
         df_animal_dictionary = df_animal_dictionary.to_numpy()
 
         df_animal_array = []

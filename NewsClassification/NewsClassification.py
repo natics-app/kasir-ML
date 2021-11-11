@@ -5,6 +5,10 @@ import string
 import re
 import warnings
 import os
+import pickle
+
+from scipy.sparse import construct
+import Constants as Constants
 # NLTK
 from nltk.tokenize import RegexpTokenizer
 # SKLEARN
@@ -27,16 +31,35 @@ from Sastrawi.StopWordRemover.StopWordRemover import StopWordRemover
 from Sastrawi.Stemmer.StemmerFactory import StemmerFactory
 
 class NewsClassification:
+
+  # First Init
   def __init__(self, dir):
-    df = pd.read_csv(dir)
-    if "Unnamed: 0" in df.columns :
-      df = df.drop(columns='Unnamed: 0')
-    # df = df.drop(columns='dir')
-    # df = df.drop(columns='content')
-    self.news_data = df  
     self.tokenizer = RegexpTokenizer(r'\w+')
-    self.tf_idf = TfidfVectorizer( lowercase=False)
     self.predictData = pd.DataFrame()
+
+    # SETUP NEWS_DATA
+    if dir == "":
+      self.news_data = pd.DataFrame()
+    else:
+      self.news_data = pd.read_csv(dir)
+
+    # SETUP MODEL
+    if os.path.exists(Constants.CLASS_MODEL_SAVED_DIR):
+      self.svm_clf = pickle.load(open(Constants.CLASS_MODEL_SAVED_DIR, 'rb'))
+    else:
+      # Tuning hyperparameter untuk model Support Vector Classifier
+      grid_parameters = {
+        'C': [0.01, 0.1, 1.0, 10.0, 100.0], # Tells the SVM optimization how much we want to avoid misclassifying each training example
+        'multi_class' : ['ovr', 'crammer_singer'], # Determines multi-class strategy if y contains > two classes
+      } 
+      # instansiasi method GridSearchCV
+      self.svm_clf = GridSearchCV(LinearSVC(), grid_parameters, cv=5)
+
+    # SETUP TF-IDF
+    if os.path.exists(Constants.TW_MODEL_SAVED_DIR):
+      self.tf_idf = pickle.load(open(Constants.TW_MODEL_SAVED_DIR, 'rb'))
+    else:
+      self.tf_idf = TfidfVectorizer( lowercase=False)
 
   # Pre-Processing methods
   def cleansing(self, text): 
@@ -58,31 +81,43 @@ class NewsClassification:
 
   def remove_stopwords(self, text):
     # stop_factory = df = pd.read_excel('list_stopword.xlsx')[0].tolist()
-    add_stopwords = ['\n']
-    # dictionary = ArrayDictionary(stop_factory + add_stopwords)
-    dictionary = ArrayDictionary(add_stopwords)
+    list_stopwords = []
+
+    # Handle separator ; for saveWords3.csv
+    for x in range(0,9):
+      if x == 3:
+        df = pd.read_csv("./stopwords/savedWords3.csv", sep=";")
+        df_list = df["words"].values.tolist()
+        list_stopwords = list_stopwords + df_list
+      else:
+        df = pd.read_csv(f"./stopwords/savedWords{x}.csv")
+        df_list = df["words"].values.tolist()
+        list_stopwords = list_stopwords + df_list
+
+    dictionary = ArrayDictionary(list_stopwords)
     str = StopWordRemover(dictionary)
-    text = [str.remove(x)for x in text]
+    text = [str.remove(x) for x in text]
     return text
 
   def clear(self, text):
     text = [x for x in text if len(x)>0]
     return text
 
-  # Term Weighting
-  def termWeighting(self, df, column_name):
-    tfidf_mat = self.tf_idf.fit_transform(df[column_name])
+  # TERM WEIGHTING FOR TRAINING
+  def termWeighting(self, dataFrame, column_name):
+    tfidf_mat = self.tf_idf.fit_transform(dataFrame[column_name])
     #mengeksport hasil tfidf ke file .csv dan excel
     feature_names = self.tf_idf.get_feature_names()
     dense = tfidf_mat.todense()
     denselist = dense.tolist()
     df_tfidf = pd.DataFrame(denselist, columns=feature_names)
-    df_tfidf.to_csv('macro/tfidf_result.csv',encoding='utf-8')
+    df_tfidf.to_csv(Constants.TFIDF_RESULT_DIR_DEFAULT,encoding='utf-8')
 
     return df_tfidf
 
-  def termWeightingPredict(self, df, column_name):
-    tfidf_mat = self.tf_idf.transform(df[column_name])
+  # TF-IDF FOR PREDICT
+  def termWeightingPredict(self, dataFrame, column_name):
+    tfidf_mat = self.tf_idf.transform(dataFrame[column_name])
     feature_names = self.tf_idf.get_feature_names()
     dense = tfidf_mat.todense()
     denselist = dense.tolist()
@@ -90,7 +125,8 @@ class NewsClassification:
 
     return df_tfidf
 
-  def run_preprocessing(self, dataFrame, start_column):
+  # PRE-PROCESSING
+  def run_preprocessing(self, dataFrame, start_column, saveDir = Constants.PRE_PROCESSING_DIR_DEFAULT):
     df = dataFrame
     # Cleansing
     df['cleansing'] = df[start_column].apply(lambda x: self.cleansing(x))
@@ -98,37 +134,24 @@ class NewsClassification:
     df['case_folding'] = df['cleansing'].apply(lambda x: self.caseFolding(x))
     # Tokenizing
     df['tokenize'] = df['case_folding'].apply(lambda x: self.tokenizer.tokenize(x))
-    # Stemming
-    df['stemmed'] = df['tokenize'].apply(lambda x: self.word_stemmer(x))
     # Stopwords
-    df['stopword'] = df['stemmed'].apply(lambda x: self.remove_stopwords(x))
+    df['stopword'] = df['tokenize'].apply(lambda x: self.remove_stopwords(x))
+    # Stemming
+    df['stemmed'] = df['stopword'].apply(lambda x: self.word_stemmer(x))
     # Hapus token kosong
-    df['clear'] = df['stopword'].apply(lambda x: self.clear(x))
-    print("Done PreProcessing")
-    df.to_csv('macro/preProcessing_result.csv',encoding='utf-8')
+    df['clear'] = df['stemmed'].apply(lambda x: self.clear(x))
+    print("DONE PREPROCESSING")
+    df.to_csv(saveDir,encoding='utf-8')
 
-  def testPreProcess(self, start_column):
-    self.news_data = self.run_preprocessing(self.news_data, start_column)
+  # TRAIN MODEL
+  def trainModel(self, label_column_string, textColumn, dir = Constants.PRE_PROCESSING_DIR_DEFAULT):
+    # self.run_preprocessing(self.news_data, textColumn)
+    df = pd.read_csv(dir)
 
-  def trainModel(self, label_column_string, textColumn):
-    self.run_preprocessing(self.news_data, textColumn)
-    df = pd.read_csv('macro/preProcessing_result.csv')
-
-    df_tfidf = self.termWeighting(df, "clear")
+    df_tfidf = self.termWeighting(dataFrame = df, column_name = textColumn)
     
     # membagi data menjadi data train dan data test dengan ukuran data tes 25% dari jumlah data
     X_train, X_test, y_train, y_test = train_test_split(df_tfidf, df[label_column_string], test_size=0.25, random_state=10)
-
-    # Setup GridSearchCV
-    # Tuning hyperparameter untuk model Support Vector Classifier
-    grid_parameters = {
-      'C': [0.01, 0.1, 1.0, 10.0, 100.0], # Tells the SVM optimization how much we want to avoid misclassifying each training example
-      'multi_class' : ['ovr', 'crammer_singer'], # Determines multi-class strategy if y contains > two classes
-      #'dual' : [True, False] # Choose the algorithm to solve either the dual or primal optimization problem when can't suggest n_samples & n_features properly 
-    } 
-
-    # instansiasi method GridSearchCV
-    self.svm_clf = GridSearchCV(LinearSVC(), grid_parameters, cv=5)
 
     # Step 3: Fit and Predict Data
     self.svm_clf.fit(X_train, y_train)
@@ -150,15 +173,38 @@ class NewsClassification:
     print("Classification Report")
     print(classification_report(y_test, predict_result))
 
-  def runPredictData(self, dir, textColumn):
-    df = pd.read_csv(dir)
-    self.run_preprocessing(df, textColumn)
-    print("tes")
-    new_df = pd.read_csv('macro/preProcessing_result.csv')
-    new_df.head()
+  # PREDICT NEW DATA
+  def runPredictData(self, dir, textColumn, loadFromDir = False):
+    df = pd.DataFrame()
+
+    # read dataframe
+    if loadFromDir:
+      df = pd.read_csv(dir)
+    else:
+      df = self.news_data
+
+    # Run preprocessing and save it to directory
+    self.run_preprocessing(dataFrame=df, start_column=textColumn, saveDir=Constants.PRE_PROCESSING_DIR_RESULT)
+
+    # load preprocessing result
+    new_df = pd.read_csv(Constants.PRE_PROCESSING_DIR_RESULT)
+
+    # Term Weighting new data
     df_tfidf = self.termWeightingPredict(new_df, "clear")
-    print("Done TW")
+
+    # Run prediction
     predict_result = self.svm_clf.predict(df_tfidf)
     new_df['label'] = predict_result
 
+    # Save prediction data
     self.predictData = new_df
+    self.predictData.to_csv(Constants.PREDICTION_RESULT_DIR)
+  
+  def saveModel(self):
+    # save tf-idf
+    pickle.dump(self.tf_idf, open(Constants.TW_MODEL_SAVED_DIR, "wb+"))
+    # save svm model
+    pickle.dump(self.svm_clf, open(Constants.CLASS_MODEL_SAVED_DIR, 'wb+'))
+
+
+

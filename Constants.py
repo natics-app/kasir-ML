@@ -1,0 +1,12 @@
+PRE_PROCESSING_DIR_DEFAULT = "./resources/classificationData/preProcessing_result.csv"
+PREDICTION_RESULT_DIR = "./resources/classificationData/predictionResult.csv"
+TW_MODEL_SAVED_DIR = "./resources/models/termWeighting.sav"
+CLASS_MODEL_SAVED_DIR = "./resources/models/model.sav"
+PRE_PROCESSING_DIR_RESULT = "./resources/classificationData/newDataPreProcessingResult.csv"
+TFIDF_RESULT_DIR_DEFAULT = "resources/classificationData/tfidf_result.csv"
+
+IE_API_KABUPATEN = "./resources/informationExtraction/apiKabupaten.csv"
+IE_ANIMAL_DICT = "./resources/informationExtraction/Animal_Dictionary.csv"
+IE_PROVINCE_LIST = "./resources/informationExtraction/listProvinsi.csv"
+IE_REGENCY_LIST = "./resources/informationExtraction/newlistKabupaten.csv"
+IE_ANIMAL_CATEGORY_LATINA = "./resources/informationExtraction/Animal_CategoryLatina.csv"
