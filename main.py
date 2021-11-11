@@ -1,6 +1,6 @@
 from Naked.toolshed.shell import execute_js
 import time
-# from wordExtraction.WordExtraction import *
+from wordExtraction.WordExtraction import *
 from NewsClassification.NewsClassification import *
 
 def scrapeData():
@@ -11,19 +11,28 @@ def scrapeData():
     else:
         print("Failed")
 
-# if __name__ == "__main__":
-#     start = time.time()
-#     scrapeData()
-#     end = time.time()
+def scrapeAndTrainData():
+    # start = time.time()
+    # scrapeData()
+    # end = time.time()
 
-#     print("Execution Time:", end-start)
+    # print("Execution Time:", end-start)
 
-# wordExtraction = WordExtraction("./resources/preProcessing_result")
-# newData = wordExtraction.run()
-# newData.head()
-# newData.to_csv("testing.csv")
+    nc = NewsClassification(dir = './data.csv')
+    nc.runPredictData(dir="", textColumn="textContent")
 
-nc = NewsClassification('./resources/preProcessing_result.csv')
-# nc.run_preprocessing(nc.news_data, "textContent")
-nc.trainModel(label_column_string="label", textColumn="clear")
-nc.saveModel()
+def trainModel():
+    nc = NewsClassification('')
+    nc.trainModel(label_column_string="label", textColumn="clear")
+    nc.saveModel()
+
+def extractInformation():
+    we = WordExtraction(Constants.PREDICTION_RESULT_DIR)
+    newData = we.run()
+    newData.to_csv("testing.csv")
+
+# RUNNING!!!!
+if __name__ == "__main__":
+    # scrapeAndTrainData()
+    # trainModel()
+    extractInformation()
