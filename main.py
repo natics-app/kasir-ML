@@ -12,11 +12,11 @@ def scrapeData():
         print("Failed")
 
 def scrapeAndTrainData():
-    # start = time.time()
-    # scrapeData()
-    # end = time.time()
+    start = time.time()
+    scrapeData()
+    end = time.time()
 
-    # print("Execution Time:", end-start)
+    print("Execution Time:", end-start)
 
     nc = NewsClassification(dir = './data.csv')
     nc.runPredictData(dir="", textColumn="textContent")
