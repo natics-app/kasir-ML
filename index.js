@@ -7,6 +7,7 @@ const fs = require('fs');
 const csv = require('fast-csv');
 const ws = fs.createWriteStream(__dirname + "/data.csv");
 const axios = require('axios');
+const Timeout = require('await-timeout');
 
 let driver = new Builder()
     .forBrowser('chrome')
@@ -16,12 +17,17 @@ let driver = new Builder()
 let newsLink = [];
 let articles = [];
 
+async function fetchJSDOM(url, virtualConsole) {
+    const promise = JSDOM.fromURL(url, { virtualConsole });
+    return Timeout.wrap(promise, 5000, "Timeout");
+}
+
 async function parse(news, index, trial) {
     process.stdout.write(`Processing [${index+1}/${newsLink.length}]: ${news.url}`);
 
     try {
         let virtualConsole = new jsdom.VirtualConsole();
-        let doc = await JSDOM.fromURL(news.url, { virtualConsole });
+        let doc = await fetchJSDOM(news.url, virtualConsole);
 
         const reader = new Readability(doc.window.document);
         let article = reader.parse();
@@ -109,10 +115,10 @@ async function getKeywords() {
 }
 
 async function main() {
-    let keywords = await getKeywords();
+    let keywords = ["penyelundupan hewan", "penyitaan hewan", "perburuan hewan", "perdagangan hewan"];
     for (let query of keywords) {
         console.log(query);
-        for (let i = 0; i <= 30; i += 10) {
+        for (let i = 0; i <= 40; i += 10) {
             await crawler(i, query);
         }
     }
