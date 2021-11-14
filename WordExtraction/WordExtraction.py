@@ -52,6 +52,14 @@ class WordExtraction():
                 animal_temporary.append(animalDetail)
             df_animal_array.append(animal_temporary)
 
+
+        dictionary_index = 0
+        for dictionaryDetail in df_animal_array:
+            df_animal_array[dictionary_index][0] = dictionaryDetail[0].split()
+            dictionary_index += 1
+
+        df_animal_array
+        
         selected_columns = df[['textContent']]
         processed_df = selected_columns.copy()
         selected_columns = copy.deepcopy(df[['textContent']])
