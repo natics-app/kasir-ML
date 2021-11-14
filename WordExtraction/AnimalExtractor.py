@@ -1,3 +1,4 @@
+import copy
 class AnimalExtractor:
     def __init__(self, df_source, df_output, value_dictionary, column_name):
         self.df_source = df_source

@@ -14,7 +14,7 @@ import wordExtraction
 from wordExtraction.WordExtractor import *
 from wordExtraction.AnimalExtractor import *
 from wordExtraction.KabupatenExtractor import *
-from wordExtraction.csvLoader import *
+from wordExtraction.CSVLoader import *
 import Constants as Constans
 
 # nltk.download('stopwords')
