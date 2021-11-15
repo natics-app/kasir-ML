@@ -119,7 +119,7 @@ async function main() {
     let keywords = ["penyelundupan hewan", "penyitaan hewan", "perburuan hewan", "perdagangan hewan"];
     for (let query of keywords) {
         console.log(query);
-        for (let i = 0; i <= 0; i += 10) {
+        for (let i = 0; i <= 40; i += 10) {
             await crawler(i, query);
         }
     }
