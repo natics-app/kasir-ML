@@ -12,9 +12,21 @@ def postNewsData(
     label,
     site,
     regencies,
-    animals
+    animals,
+    animalsCategories,
 ):
+    baseUrl = "https://kasir.farrelanshary.me"
     endpoint = baseUrl + "/api/general/news"
+    headers = {'Accept': 'application/json'}
+
+    animalsArr = []
+
+    for idx, val in enumerate(animals):
+        animalsArr.append({
+            "name" : val,
+            "category" : animalsCategories[idx]
+        })
+
     payload = {
         "title" : title,
         "url" : url,
@@ -24,10 +36,13 @@ def postNewsData(
         "label" : label,
         "site" : site,
         "regencies" : regencies,
-        "animals" : animals
+        "animals" : animalsArr
     }
-    req = requests.post(url=endpoint)
-    return req.json()
+
+    print(payload)
+    
+    # req = requests.post(url = endpoint, headers=headers, json= payload)
+    # return req.json()
 
 def getNewsData():
     endpoint = baseUrl + "/api/general/news"
