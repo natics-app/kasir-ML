@@ -5,7 +5,6 @@ const jsdom = require('jsdom');
 const { JSDOM } = jsdom;
 const fs = require('fs');
 const csv = require('fast-csv');
-const ws = fs.createWriteStream(__dirname + "/data.csv");
 const axios = require('axios');
 const Timeout = require('await-timeout');
 
@@ -32,7 +31,7 @@ async function parse(news, index, trial) {
         const reader = new Readability(doc.window.document);
         let article = reader.parse();
         article["url"] = news.url;
-        article["news_date"] = news.date;
+        article["news_date"] = news.news_date;
         articles.push(article);
 
         process.stdout.write(`\rProcessed [${index+1}/${newsLink.length}]: ${news.url} ✅\n`);
@@ -115,10 +114,12 @@ async function getKeywords() {
 }
 
 async function main() {
+    const today = new Date();
+    const name = `/data ${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}.csv`
     let keywords = ["penyelundupan hewan", "penyitaan hewan", "perburuan hewan", "perdagangan hewan"];
     for (let query of keywords) {
         console.log(query);
-        for (let i = 0; i <= 40; i += 10) {
+        for (let i = 0; i <= 0; i += 10) {
             await crawler(i, query);
         }
     }
@@ -129,6 +130,8 @@ async function main() {
         await parse(link, i, 1);
     }
 
+
+    const ws = fs.createWriteStream(__dirname + name);
     csv
         .write(articles, { headers: true })
         .pipe(ws);
