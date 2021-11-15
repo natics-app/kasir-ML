@@ -2,6 +2,7 @@ from Naked.toolshed.shell import execute_js
 import time
 from wordExtraction.WordExtraction import *
 from NewsClassification.NewsClassification import *
+from Networking.networking import *
 
 def scrapeData():
     success = execute_js("index.js")
@@ -31,8 +32,26 @@ def extractInformation():
     newData = we.run()
     newData.to_csv("testing.csv")
 
+def postReq():
+    df = pd.read_csv("testing.csv")
+    row1 = df.iloc[0]
+    print(df.iloc[0])
+    postNewsData(
+        title=row1["title"], 
+        url=row1["url"], 
+        date="", 
+        newsDate="", 
+        isTrained=False, 
+        label="", 
+        site="", 
+        regencies=[], 
+        animals=[], 
+        animalsCategories=[]
+    )
+
 # RUNNING!!!!
 if __name__ == "__main__":
-    # scrapeAndTrainData()
-    # trainModel()
+    scrapeAndTrainData()
+    trainModel()
     extractInformation()
+    postReq()

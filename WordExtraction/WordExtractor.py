@@ -1,4 +1,4 @@
-from wordExtraction.DateRegex import *
+from wordExtraction.dateRegex import *
 
 class WordExtractor:
     def __init__(self, df_source, df_output, value_dictionary, column_name):

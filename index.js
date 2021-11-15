@@ -32,7 +32,7 @@ async function parse(news, index, trial) {
         const reader = new Readability(doc.window.document);
         let article = reader.parse();
         article["url"] = news.url;
-        article["date"] = news.date;
+        article["news_date"] = news.date;
         articles.push(article);
 
         process.stdout.write(`\rProcessed [${index+1}/${newsLink.length}]: ${news.url} ✅\n`);
