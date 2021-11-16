@@ -128,20 +128,28 @@ class NewsClassification:
   # PRE-PROCESSING
   def run_preprocessing(self, dataFrame, start_column, saveDir = Constants.PRE_PROCESSING_DIR_DEFAULT):
     df = dataFrame
+    print("START PREPROCESSING")
     # Cleansing
+    print("Pre-Processing: 1/6 - Cleansing")
     df['cleansing'] = df[start_column].apply(lambda x: self.cleansing(x))
     # Case folding
+    print("Pre-Processing: 2/6 - CaseFolding")
     df['case_folding'] = df['cleansing'].apply(lambda x: self.caseFolding(x))
     # Tokenizing
+    print("Pre-Processing: 3/6 - Tokenize")
     df['tokenize'] = df['case_folding'].apply(lambda x: self.tokenizer.tokenize(x))
     # Stopwords
+    print("Pre-Processing: 4/6 - Stopwords")
     df['stopword'] = df['tokenize'].apply(lambda x: self.remove_stopwords(x))
     # Stemming
+    print("Pre-Processing: 5/6 - Stemmed")
     df['stemmed'] = df['stopword'].apply(lambda x: self.word_stemmer(x))
     # Hapus token kosong
+    print("Pre-Processing: 6/6 - Clear")
     df['clear'] = df['stemmed'].apply(lambda x: self.clear(x))
     print("DONE PREPROCESSING")
     df.to_csv(saveDir,encoding='utf-8')
+    print(f"PreProcessing result saved to {saveDir}")
 
   # TRAIN MODEL
   def trainModel(self, label_column_string, textColumn, dir = Constants.PRE_PROCESSING_DIR_DEFAULT):
@@ -182,7 +190,7 @@ class NewsClassification:
       df = pd.read_csv(dir)
     else:
       df = self.news_data
-
+    
     # Run preprocessing and save it to directory
     self.run_preprocessing(dataFrame=df, start_column=textColumn, saveDir=Constants.PRE_PROCESSING_DIR_RESULT)
 

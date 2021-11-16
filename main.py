@@ -3,6 +3,12 @@ import time
 from wordExtraction.WordExtraction import *
 from NewsClassification.NewsClassification import *
 from Networking.networking import *
+from ast import literal_eval
+from datetime import date
+import schedule
+
+today = date.today()
+dateString = today.strftime("%Y-%m-%d")
 
 def scrapeData():
     success = execute_js("index.js")
@@ -12,14 +18,14 @@ def scrapeData():
     else:
         print("Failed")
 
-def scrapeAndTrainData():
+def scrapeAndPredictData():
     start = time.time()
     scrapeData()
     end = time.time()
 
     print("Execution Time:", end-start)
 
-    nc = NewsClassification(dir = './data.csv')
+    nc = NewsClassification(dir = f'./data {dateString}.csv')
     nc.runPredictData(dir="", textColumn="textContent")
 
 def trainModel():
@@ -34,24 +40,35 @@ def extractInformation():
 
 def postReq():
     df = pd.read_csv("testing.csv")
-    row1 = df.iloc[0]
-    print(df.iloc[0])
-    postNewsData(
-        title=row1["title"], 
-        url=row1["url"], 
-        date="", 
-        newsDate="", 
-        isTrained=False, 
-        label="", 
-        site="", 
-        regencies=[], 
-        animals=[], 
-        animalsCategories=[]
-    )
+    for row in df.itertuples():
+        res = postNewsData(
+            title=row.title, 
+            url=row.url, 
+            date="", 
+            newsDate=row.news_date, 
+            isTrained=False, 
+            label=row.label, 
+            site=row.siteName, 
+            regencies=literal_eval(row.kabupaten), 
+            animals=literal_eval(row.hewan), 
+            animalsCategories=literal_eval(row.animalCategory)
+        )
+        print(res)
 
-# RUNNING!!!!
-if __name__ == "__main__":
-    scrapeAndTrainData()
+def dailyScraping():
+    if not os.path.exists(f'./data {dateString}.csv'):
+        scrapeAndPredictData()
     trainModel()
     extractInformation()
     postReq()
+
+def testing():
+    print("tes")
+
+# RUNNING!!!!
+if __name__ == "__main__":
+    schedule.every(1).seconds.do(testing)
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
+        
