@@ -128,7 +128,7 @@ class NewsClassification:
   # PRE-PROCESSING
   def run_preprocessing(self, dataFrame, start_column, saveDir = Constants.PRE_PROCESSING_DIR_DEFAULT):
     df = dataFrame
-    print("START PREPROCESSING")
+    print("\n\n===START PREPROCESSING===")
     # Cleansing
     print("Pre-Processing: 1/6 - Cleansing")
     df['cleansing'] = df[start_column].apply(lambda x: self.cleansing(x))
@@ -147,9 +147,9 @@ class NewsClassification:
     # Hapus token kosong
     print("Pre-Processing: 6/6 - Clear")
     df['clear'] = df['stemmed'].apply(lambda x: self.clear(x))
-    print("DONE PREPROCESSING")
     df.to_csv(saveDir,encoding='utf-8')
     print(f"PreProcessing result saved to {saveDir}")
+    print("===DONE PREPROCESSING===\n")
 
   # TRAIN MODEL
   def trainModel(self, label_column_string, textColumn, dir = Constants.PRE_PROCESSING_DIR_DEFAULT):
@@ -183,6 +183,7 @@ class NewsClassification:
 
   # PREDICT NEW DATA
   def runPredictData(self, dir, textColumn, loadFromDir = False):
+    print("\n\n===RUN PREDICT DATA===")
     df = pd.DataFrame()
 
     # read dataframe
@@ -207,6 +208,8 @@ class NewsClassification:
     # Save prediction data
     self.predictData = new_df
     self.predictData.to_csv(Constants.PREDICTION_RESULT_DIR)
+
+    print("===DONE PREDICT DATA===\n")
   
   def saveModel(self):
     # save tf-idf

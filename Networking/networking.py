@@ -56,9 +56,6 @@ def postNewsData(
         "regencies" : regencies,
         "animals" : animalsArr
     }
-
-    print("\n\n")
-    print(payload)
     
     req = requests.post(url = endpoint, headers=headers, json= payload)
     return req.json()

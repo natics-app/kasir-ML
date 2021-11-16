@@ -1,7 +1,5 @@
-from datetime import date
+import pandas as pd
 
-today = date.today()
+df = pd.read_csv("testing.csv")
 
-# dd/mm/YY
-d1 = today.strftime("%Y-%m-%d")
-print("d1 =", d1)
+print(df.shape[0])

@@ -39,7 +39,10 @@ def extractInformation():
     newData.to_csv("testing.csv")
 
 def postReq():
+    print("\n===START NETWORKING===")
     df = pd.read_csv("testing.csv")
+    rows = df.shape[0]
+    count = 1
     for row in df.itertuples():
         res = postNewsData(
             title=row.title, 
@@ -53,12 +56,13 @@ def postReq():
             animals=literal_eval(row.hewan), 
             animalsCategories=literal_eval(row.animalCategory)
         )
-        print(res)
+        print(f"{count}/{rows}")
+        count += 1
+    print("===DONE NETWORKING===")
 
 def dailyScraping():
     if not os.path.exists(f'./data {dateString}.csv'):
         scrapeAndPredictData()
-    trainModel()
     extractInformation()
     postReq()
 
@@ -67,8 +71,7 @@ def testing():
 
 # RUNNING!!!!
 if __name__ == "__main__":
-    schedule.every(1).seconds.do(testing)
+    schedule.every(24).hours.do(dailyScraping)
     while True:
         schedule.run_pending()
         time.sleep(1)
-        
