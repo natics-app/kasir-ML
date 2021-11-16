@@ -66,9 +66,6 @@ def dailyScraping():
     extractInformation()
     postReq()
 
-def testing():
-    print("tes")
-
 # RUNNING!!!!
 if __name__ == "__main__":
     schedule.every(24).hours.do(dailyScraping)
