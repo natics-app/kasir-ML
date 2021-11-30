@@ -68,7 +68,4 @@ def dailyScraping():
 
 # RUNNING!!!!
 if __name__ == "__main__":
-    schedule.every(24).hours.do(dailyScraping)
-    while True:
-        schedule.run_pending()
-        time.sleep(1)
+    dailyScraping()
