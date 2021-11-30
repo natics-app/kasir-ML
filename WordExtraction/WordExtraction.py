@@ -10,11 +10,11 @@ import pandas as pd
 import copy
 import csv
 import re
-import wordExtraction
-from wordExtraction.WordExtractor import *
-from wordExtraction.AnimalExtractor import *
-from wordExtraction.KabupatenExtractor import *
-from wordExtraction.csvLoader import *
+import WordExtraction
+from WordExtraction.WordExtractor import *
+from WordExtraction.AnimalExtractor import *
+from WordExtraction.KabupatenExtractor import *
+from WordExtraction.CSVLoader import *
 import Constants as Constans
 
 # nltk.download('stopwords')
