@@ -34,7 +34,7 @@ def trainModel():
     nc.saveModel()
 
 def extractInformation():
-    we = WordExtraction("./resources/classificationData/predictionResult.csv")
+    we = WordExtraction(Constants.PREDICTION_RESULT_DIR)
     newData = we.run()
     newData.to_csv("testing.csv")
 
@@ -68,4 +68,4 @@ def dailyScraping():
 
 # RUNNING!!!!
 if __name__ == "__main__":
-    extractInformation()
+    dailyScraping()
