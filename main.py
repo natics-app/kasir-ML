@@ -1,6 +1,6 @@
 from Naked.toolshed.shell import execute_js
 import time
-from WordExtraction.WordExtraction import *
+from wordExtraction.WordExtraction import *
 from NewsClassification.NewsClassification import *
 from Networking.networking import *
 from ast import literal_eval
@@ -34,7 +34,7 @@ def trainModel():
     nc.saveModel()
 
 def extractInformation():
-    we = WordExtraction(Constants.PREDICTION_RESULT_DIR)
+    we = WordExtraction("./resources/classificationData/predictionResult.csv")
     newData = we.run()
     newData.to_csv("testing.csv")
 
@@ -68,4 +68,4 @@ def dailyScraping():
 
 # RUNNING!!!!
 if __name__ == "__main__":
-    dailyScraping()
+    extractInformation()
