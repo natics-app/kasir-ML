@@ -1,6 +1,6 @@
 from Naked.toolshed.shell import execute_js
 import time
-from WordExtraction.WordExtraction import *
+from wordExtraction.WordExtraction import *
 from NewsClassification.NewsClassification import *
 from Networking.networking import *
 from ast import literal_eval
